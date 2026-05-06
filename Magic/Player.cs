@@ -14,20 +14,20 @@ namespace Magic
     internal class Player
     {
         private static string loginUserFileName = @"NextPlayer1.txt";
-        private static readonly string _filePathLastUser = @"LogFiles\lastUser.txt";
+        private static string FilePathLastUser => Path.Combine(ConfigReader.Current.GetLogFilesPath(), "lastUser.txt");
         public static void WriteLastUser(int userId)
         {
             if (userId == -1)
                 return;
 
-            File.WriteAllText(_filePathLastUser, userId.ToString());
+            File.WriteAllText(FilePathLastUser, userId.ToString());
         }
 
         public static void TransferLastUserIDToUserlist(string _filePathToUserList = @"NextPlayer1.txt")
         {
             try
             {                
-                int UserID = int.Parse(File.ReadAllLines(_filePathLastUser)[0]);
+                int UserID = int.Parse(File.ReadAllLines(FilePathLastUser)[0]);
                 Player.InsertPlayerInLoginList(UserID, _filePathToUserList);
             }
             catch

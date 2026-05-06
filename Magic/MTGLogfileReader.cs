@@ -22,12 +22,10 @@ namespace Magic
        [MarshalAs(UnmanagedType.U4)] FileAttributes dwFlagsAndAttributes,
        IntPtr hTemplateFile);
 
-        static string playerLogFilename = @"C:\Users\Tommy\AppData\LocalLow\Wizards Of The Coast\MTGA\Player.log";
-
         public static string[] Last50Lines()
         {
             string[] result = new string[50];
-            StreamReader sr = new StreamReader(playerLogFilename);
+            StreamReader sr = new StreamReader(ConfigReader.Current.GetExpandedPlayerLogPath());
             Stopwatch sw = Stopwatch.StartNew();
             sw.Stop();
             var test2 = sw.ElapsedMilliseconds;
@@ -44,7 +42,7 @@ namespace Magic
         
         public static string Test2()
         {
-            string filePath = @"C:\Users\Tommy\AppData\LocalLow\Wizards Of The Coast\MTGA\Player.log";
+            string filePath = ConfigReader.Current.GetExpandedPlayerLogPath();
             
             // Open the file with read-only access and shared read/write permissions
             SafeFileHandle handle = CreateFile(

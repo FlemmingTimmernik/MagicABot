@@ -5,18 +5,10 @@ Denne fil er vores kommunikationsfil. Skriv den aktuelle opgave oeverst under "A
 ## Aktuel opgave
 
 ```text
-v0.2.0: Flyt hardcodede lokale stier og netvaerksstier ud af koden og ind i ConfigReader/config.
+Afventer naeste opgave.
 
-Start med:
-- Player.log path
-- Steam path
-- Master/Slave share path
-- Runtime mapper som LogFiles, LogfilesDump, cleanLogfiles og magicLogfile
-
-Maal:
-- Ingen private maskinstier direkte i kildekoden.
-- Programmet skal stadig bygge efter aendringen.
-- Opdater config.example.txt, Roadmap.md, ThingsToFix.md og Logfil.md efter behov.
+Senest afsluttet:
+v0.2.0 config/stier/sikkerhed er implementeret og klar til versionstag.
 ```
 
 ## Arbejdsregel
@@ -28,6 +20,7 @@ Maal:
 
 ## Seneste status
 
+- 2026-05-06 16:03:30 +02:00: v0.2.0 config/stier/sikkerhed implementeret; build lykkes med 0 errors.
 - 2026-05-06 15:49:36 +02:00: Naeste arbejdsopgave sat til v0.2.0 config/stier.
 - 2026-05-06: Oprettet `Roadmap.md`, `ThingsToFix.md` og `NextStep.md`.
 - Programoverblik: MTG Arena Windows Forms helper til login, quest parsing, quest swap, deck generation/import, kampautomation, screenshots og logfilhaandtering.

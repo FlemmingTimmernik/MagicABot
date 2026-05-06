@@ -7,6 +7,9 @@ namespace Magic
 {
     public class ConfigReader
     {
+        public const string DefaultConfigFilePath = @"config\config.json";
+        public static ConfigReader Current { get; private set; } = new ConfigReader();
+
         // Properties to hold configuration values
         public int TimeOutWhite { get; set; }
         public int TimeOutBlack { get; set; }
@@ -21,17 +24,34 @@ namespace Magic
         public string LoginEmailAccountZero { get; set; } = "";
         public string LoginEmailTemplate { get; set; } = "";
         public string LoginPassword { get; set; } = "";
+        public string PlayerLogPath { get; set; } = "";
+        public string SteamPath { get; set; } = "";
+        public string SteamAppId { get; set; } = "";
+        public string MasterSharePath { get; set; } = "";
+        public string NextPlayerFileName { get; set; } = "";
+        public string LoginOrderFileName { get; set; } = "";
+        public string LoginOrderZeroQuestsFileName { get; set; } = "";
+        public string LogFilesPath { get; set; } = "";
+        public string LogFilesTempPath { get; set; } = "";
+        public string LogfilesDumpPath { get; set; } = "";
+        public string CleanLogfilesPath { get; set; } = "";
+        public string MagicLogFilePath { get; set; } = "";
+        public bool DryRun { get; set; }
+        public bool DebugClickLogging { get; set; }
+        public bool AllowForceKillArena { get; set; }
+        public bool AllowNetworkFileWrites { get; set; }
+        public bool AllowDeleteProcessedLogFiles { get; set; }
 
         private readonly string configFilePath;
 
         public ConfigReader()
         {
-            configFilePath = @"config\config.txt";
+            configFilePath = DefaultConfigFilePath;
             SetDefaultValues();
         }
 
         // Constructor to specify the config file path and load configuration values
-        public ConfigReader(string configFilePathPar)// = @"config\config.txt")
+        public ConfigReader(string configFilePathPar)
         {
             this.configFilePath = configFilePathPar;
             SetDefaultValues();
@@ -60,12 +80,32 @@ namespace Magic
                     LoginEmailAccountZero = config.LoginEmailAccountZero;
                     LoginEmailTemplate = config.LoginEmailTemplate;
                     LoginPassword = config.LoginPassword;
+                    PlayerLogPath = config.PlayerLogPath;
+                    SteamPath = config.SteamPath;
+                    SteamAppId = config.SteamAppId;
+                    MasterSharePath = config.MasterSharePath;
+                    NextPlayerFileName = config.NextPlayerFileName;
+                    LoginOrderFileName = config.LoginOrderFileName;
+                    LoginOrderZeroQuestsFileName = config.LoginOrderZeroQuestsFileName;
+                    LogFilesPath = config.LogFilesPath;
+                    LogFilesTempPath = config.LogFilesTempPath;
+                    LogfilesDumpPath = config.LogfilesDumpPath;
+                    CleanLogfilesPath = config.CleanLogfilesPath;
+                    MagicLogFilePath = config.MagicLogFilePath;
+                    DryRun = config.DryRun;
+                    DebugClickLogging = config.DebugClickLogging;
+                    AllowForceKillArena = config.AllowForceKillArena;
+                    AllowNetworkFileWrites = config.AllowNetworkFileWrites;
+                    AllowDeleteProcessedLogFiles = config.AllowDeleteProcessedLogFiles;
                 }
             }
             else
             {
                 SaveConfigValues(); // Save default values to file
             }
+
+            EnsureRuntimeDirectories();
+            Current = this;
         }
 
         // Method to save the current properties to the JSON file
@@ -77,9 +117,66 @@ namespace Magic
 
             string json = JsonConvert.SerializeObject(this, Formatting.Indented);
             if (configFilePath == null)
-                File.WriteAllText(@"config\config.txt", json);
+                File.WriteAllText(DefaultConfigFilePath, json);
             else            
                 File.WriteAllText(configFilePath, json);
+        }
+
+        public void EnsureRuntimeDirectories()
+        {
+            CreateDirectoryForPath(LogFilesPath);
+            CreateDirectoryForPath(LogFilesTempPath);
+            CreateDirectoryForPath(LogfilesDumpPath);
+            CreateDirectoryForPath(CleanLogfilesPath);
+            CreateDirectoryForPath(Path.GetDirectoryName(MagicLogFilePath));
+        }
+
+        public string GetExpandedPlayerLogPath()
+        {
+            return ExpandPath(PlayerLogPath);
+        }
+
+        public string GetExpandedSteamPath()
+        {
+            return ExpandPath(SteamPath);
+        }
+
+        public string GetLogFilesPath()
+        {
+            return ExpandPath(LogFilesPath);
+        }
+
+        public string GetLogFilesTempPath()
+        {
+            return ExpandPath(LogFilesTempPath);
+        }
+
+        public string GetLogfilesDumpPath()
+        {
+            return ExpandPath(LogfilesDumpPath);
+        }
+
+        public string GetCleanLogfilesPath()
+        {
+            return ExpandPath(CleanLogfilesPath);
+        }
+
+        public string GetMagicLogFilePath()
+        {
+            return ExpandPath(MagicLogFilePath);
+        }
+
+        public string GetMasterShareFilePath(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(MasterSharePath))
+                return fileName;
+
+            return Path.Combine(ExpandPath(MasterSharePath), fileName);
+        }
+
+        public string GetRemoteLogfilesDumpPath()
+        {
+            return GetMasterShareFilePath(LogfilesDumpPath);
         }
 
         public string GetLoginEmail(int accountNumber)
@@ -109,6 +206,11 @@ namespace Magic
             result += ($"LoginEmailAccountZero: {LoginEmailAccountZero}") + Environment.NewLine;
             result += ($"LoginEmailTemplate: {LoginEmailTemplate}") + Environment.NewLine;
             result += ($"LoginPassword configured: {!string.IsNullOrWhiteSpace(LoginPassword)}") + Environment.NewLine;
+            result += ($"PlayerLogPath: {PlayerLogPath}") + Environment.NewLine;
+            result += ($"SteamPath: {SteamPath}") + Environment.NewLine;
+            result += ($"MasterSharePath: {MasterSharePath}") + Environment.NewLine;
+            result += ($"DryRun: {DryRun}") + Environment.NewLine;
+            result += ($"DebugClickLogging: {DebugClickLogging}") + Environment.NewLine;
 
             return result;
         }
@@ -127,6 +229,42 @@ namespace Magic
             LoginEmailAccountZero = "";
             LoginEmailTemplate = "";
             LoginPassword = "";
+            PlayerLogPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                @"AppData\LocalLow\Wizards Of The Coast\MTGA\Player.log"
+            );
+            SteamPath = @"%ProgramFiles(x86)%\Steam\steam.exe";
+            SteamAppId = "2141910";
+            MasterSharePath = "";
+            NextPlayerFileName = "NextPlayer1.txt";
+            LoginOrderFileName = "loginOrder.txt";
+            LoginOrderZeroQuestsFileName = "loginOrder0Quests.txt";
+            LogFilesPath = "LogFiles";
+            LogFilesTempPath = "LogFilesTemp";
+            LogfilesDumpPath = "LogfilesDump";
+            CleanLogfilesPath = "cleanLogfiles";
+            MagicLogFilePath = @"magicLogfile\Logfile.txt";
+            DryRun = false;
+            DebugClickLogging = false;
+            AllowForceKillArena = false;
+            AllowNetworkFileWrites = false;
+            AllowDeleteProcessedLogFiles = false;
+        }
+
+        private static string ExpandPath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return path;
+
+            return Environment.ExpandEnvironmentVariables(path);
+        }
+
+        private static void CreateDirectoryForPath(string? path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return;
+
+            Directory.CreateDirectory(ExpandPath(path));
         }
     }    
 }

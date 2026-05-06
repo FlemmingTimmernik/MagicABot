@@ -18,11 +18,19 @@ namespace Magic
         static IntPtr hWnd;
         public static void StartMTGArena()
         {
-            string steamPath = @"C:\Program Files (x86)\Steam\steam.exe";
+            ConfigReader config = ConfigReader.Current;
+            string steamPath = config.GetExpandedSteamPath();
             Process mgta = new Process();
 
             mgta.StartInfo.FileName = steamPath;
-            mgta.StartInfo.Arguments = "-applaunch 2141910";
+            mgta.StartInfo.Arguments = "-applaunch " + config.SteamAppId;
+
+            if (config.DryRun)
+            {
+                LogFile.WriteLog($"DRY RUN: Would start MTG Arena with {steamPath} {mgta.StartInfo.Arguments}");
+                return;
+            }
+
             mgta.Start();
 
             while (!LookAndClick.LookForLoginScreen())
@@ -71,7 +79,19 @@ namespace Magic
             {
                 if (proc.ProcessName == "MTGA")
                 {
-                   proc.Kill();
+                    if (!ConfigReader.Current.AllowForceKillArena)
+                    {
+                        LogFile.WriteLog("CloseMTGArena skipped because AllowForceKillArena is false.");
+                        return false;
+                    }
+
+                    if (ConfigReader.Current.DryRun)
+                    {
+                        LogFile.WriteLog("DRY RUN: Would force-kill MTGA process.");
+                        return true;
+                    }
+
+                    proc.Kill();
                     return true;
                 }
             }

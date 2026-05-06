@@ -4,8 +4,8 @@ Sidst opdateret: 2026-05-06
 
 ## Hoej Prioritet
 
-- Hardcodede loginoplysninger i `Form1.Login` skal flyttes ud af koden. Brug config, secret-fil eller en lokal konto-mapping der ikke commits/deles.
-- Hardcodede lokale stier som `C:\Users\Tommy\AppData\...`, Steam-sti og `\\tommy-pc\delt\Magic` skal samles i config.
+- Verificer at alle loginoplysninger kun ligger i lokal `config\config.json` og aldrig i filer der pushes til GitHub.
+- Fortsaet med at flytte hardcodede lokale stier og netvaerksstier ind i config, efterhaanden som de dukker op i flows der ikke er ryddet helt op.
 - Programmet antager i praksis 1920x1080 og faste MTG Arena-positioner. Det goer automation skroebelig ved ny oploesning, UI-scale eller Arena-opdateringer.
 - Mange `catch { }` skjuler fejl. De boer mindst logge exception og kontekst.
 - Lange/infinite loops mangler faelles cancellation token eller kontrolleret stop.
@@ -19,8 +19,8 @@ Sidst opdateret: 2026-05-06
 - `ParseLogfile.RenameLogfiles` kan overskrive/fejle, hvis destinationer allerede findes.
 - `CopyLocalPlayerLogFile` bruger `File.Copy(..., false)` og fejler, hvis `LogfilesDump\temp.log` findes.
 - Flere steder sletter programmet logfiler efter behandling. Det boer have backup eller en "processed" mappe.
-- `MTGArena.CloseMTGArena` draeber processen direkte med `proc.Kill()`. Det boer kun ske efter bevidst valg og gerne med graceful close foerst.
-- `ConfigReader` findes, men er kommenteret ud i `Form1`, saa mange defaults/configvaerdier bruges ikke reelt.
+- `MTGArena.CloseMTGArena` draeber kun processen naar `AllowForceKillArena` er true, men der boer senere laves graceful close foerst.
+- `ConfigReader` bruges nu fra `Form1`, men flere klasser boer senere faa config injiceret i stedet for at hente `ConfigReader.Current`.
 - UI-opdatering fra baggrundstraade er delvist haandteret, men loops kan fortsaette efter vinduer lukkes.
 
 ## Oprydning
@@ -46,8 +46,8 @@ Sidst opdateret: 2026-05-06
 
 ## Sikkerhed Og Drift
 
-- Flyt passwords ud af repoet.
-- Undgaa at skrive/slette paa netvaerks-share uden tydelig config og fejlbesked.
-- Tilfoej "dry run" for filoperationer.
-- Log alle automatiske klik med skaermstate og koordinat, naar debug mode er aktiv.
+- Hold passwords ude af repoet og kun i lokal ignored config.
+- Netvaerks-skrivning er gated af `AllowNetworkFileWrites`; gennemgaa senere alle flows for bedre UI-feedback.
+- `DryRun` findes i config og er koblet paa vigtige klik/start/kopi flows; udvid senere til alle direkte `MouseOperations`-kald.
+- Faelles `DoLeftMouseClick` kan logge koordinater med `DebugClickLogging`; udvid senere med screenstate.
 - Tilfoej en synlig noedstop/status i UI udover musens position.

@@ -23,8 +23,9 @@ namespace Magic
         Player player = new Player();
         LookAndClick.ScreenStates currentLocation = LookAndClick.ScreenStates.JUST_STARTED;
         LookAndClick.ScreenStates lastLocation = LookAndClick.ScreenStates.JUST_STARTED;
-        string configLocation = @"config\config.txt";
+        string configLocation = ConfigReader.DefaultConfigFilePath;
         ConfigReader configReader;
+        private volatile bool stopRequested = false;
         int maxGameTimeInSeconds = 85;
         int maxQuestsLeft = 2;
 
@@ -32,14 +33,40 @@ namespace Magic
         {
 
             InitializeComponent();
+            AddSafetyControls();
             player = new Player();
-            parseLogFile = new ParseLogfile();
             configReader = new ConfigReader(configLocation);
             configReader.LoadConfigValues();
+            parseLogFile = new ParseLogfile();
         }
 
 
 
+
+        private void AddSafetyControls()
+        {
+            Button emergencyStopButton = new Button();
+            emergencyStopButton.Name = "BtnEmergencyStop";
+            emergencyStopButton.Text = "STOP";
+            emergencyStopButton.Size = new Size(75, 30);
+            emergencyStopButton.Location = new Point(10, 10);
+            emergencyStopButton.BackColor = Color.Red;
+            emergencyStopButton.ForeColor = Color.White;
+            emergencyStopButton.Click += (sender, args) =>
+            {
+                stopRequested = true;
+                TxtStatus.Text = "STOP requested";
+                LogFile.WriteLog("Emergency stop requested from UI.");
+            };
+
+            Controls.Add(emergencyStopButton);
+            emergencyStopButton.BringToFront();
+        }
+
+        private bool ShouldStopAutomation()
+        {
+            return stopRequested || Cursor.Position.Y < 5;
+        }
         private void ButtonDelete_Click(object sender, EventArgs e)
         {
             Thread.Sleep(200);
@@ -311,6 +338,9 @@ namespace Magic
 
         private void DoLeftMouseClick(int waitBefore, int waitAfter, int x = -1, int y = -1)
         {
+            if (ShouldStopAutomation())
+                return;
+
             var currentPoint = Cursor.Position;
             if (currentPoint.X > 1917 && currentPoint.Y > 1077)
             {
@@ -326,6 +356,16 @@ namespace Magic
                 Cursor.Position = new Point(x, y);
 
             }
+
+            if (configReader.DebugClickLogging)
+                LogFile.WriteLog($"Click x={x}, y={y}, waitBefore={waitBefore}, waitAfter={waitAfter}");
+
+            if (configReader.DryRun)
+            {
+                LogFile.WriteLog($"DRY RUN: Would click x={x}, y={y}");
+                return;
+            }
+
             Thread.Sleep(waitBefore);
             MouseOperations.MouseOperations.DoLeftMouseClick();
             Thread.Sleep(waitAfter);
@@ -416,7 +456,7 @@ namespace Magic
             string email = configReader.GetLoginEmail(number);
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(configReader.LoginPassword))
             {
-                MessageBox.Show("Login mangler i config\\config.txt. Udfyld LoginEmailAccountZero, LoginEmailTemplate og LoginPassword.");
+                MessageBox.Show("Login mangler i config\\config.json. Udfyld LoginEmailAccountZero, LoginEmailTemplate og LoginPassword.");
                 return false;
             }
 
@@ -1458,17 +1498,20 @@ namespace Magic
 
         private void CopyLogFiles(int AccountNumber)
         {
-            string source = @"C:\Users\Tommy\AppData\LocalLow\Wizards Of The Coast\MTGA\Player.log";
-            string logfileFolder = "LogFiles";
-            if (!Directory.Exists(logfileFolder))
-                Directory.CreateDirectory(logfileFolder);
-            if (AccountNumber != -1)
-                File.Copy(source, logfileFolder + "\\" + AccountNumber + ".txt", true);
-            else
-                File.Copy(source, logfileFolder + "\\temp.txt", true);
+            string source = configReader.GetExpandedPlayerLogPath();
+            string logfileFolder = configReader.GetLogFilesPath();
+            Directory.CreateDirectory(logfileFolder);
 
+            string destinationFileName = AccountNumber != -1 ? AccountNumber + ".txt" : "temp.txt";
+            string destination = Path.Combine(logfileFolder, destinationFileName);
 
+            if (configReader.DryRun)
+            {
+                LogFile.WriteLog($"DRY RUN: Would copy log file {source} to {destination}");
+                return;
+            }
 
+            File.Copy(source, destination, true);
         }
 
         private void button1_Click_1(object sender, EventArgs e)
@@ -1524,8 +1567,8 @@ namespace Magic
                 //Login
                 {
                     Thread.Sleep(500);
-                    if (Directory.Exists("config"))
-                        userNumber = Player.GetNextPlayer(@"\\tommy-pc\delt\Magic\NextPlayer1.txt");
+                    if (WhatComputer() == "Master")
+                        userNumber = Player.GetNextPlayer(configReader.GetMasterShareFilePath(configReader.NextPlayerFileName));
                     else
                         userNumber = Player.GetNextPlayer();
 
@@ -1540,7 +1583,7 @@ namespace Magic
                     LogFile.WriteLog("Form1.AutoLoginAndPlay: (User: " + userNumber + ") Before LoginFromStartScreenToStartScreen");
 
 
-                    FileInfo logFileInfo = new FileInfo(@"C:\Users\Tommy\AppData\LocalLow\Wizards Of The Coast\MTGA\Player.log");
+                    FileInfo logFileInfo = new FileInfo(configReader.GetExpandedPlayerLogPath());
                     long logfileSize = logFileInfo.Length;
 
                     //TODO: Failed Login
@@ -1900,20 +1943,21 @@ namespace Magic
 
         private void SplitLogFilesToIndividualLogFiles()
         {
-            var filenames = Directory.GetFiles("LogfilesDump");
+            var filenames = Directory.GetFiles(configReader.GetLogfilesDumpPath());
             foreach (var filename in filenames)
             {
                 if (filename.IndexOf(".log") != -1)
                 {
                     ReadLogFile(filename);
-                    File.Delete(filename);
+                    if (configReader.AllowDeleteProcessedLogFiles)
+                        File.Delete(filename);
                 }
             }
         }
 
         private void ReadAllLogFiles()
         {
-            var filenames = Directory.GetFiles("LogFilesTemp");
+            var filenames = Directory.GetFiles(configReader.GetLogFilesTempPath());
             foreach (var filename in filenames)
             {
                 OnlySaveImportantLines(filename);
@@ -1923,7 +1967,7 @@ namespace Magic
 
         private void OnlySaveImportantLines(string fileNamePar)
         {
-            string cleanLogfilesDirectory = "cleanLogfiles\\";
+            string cleanLogfilesDirectory = configReader.GetCleanLogfilesPath();
             string[] lines = File.ReadAllLines(fileNamePar);
             bool inventoryLine = true;
             StringBuilder sb = new StringBuilder();
@@ -1966,7 +2010,7 @@ namespace Magic
                 }
             }
 
-            string cleanFileName = cleanLogfilesDirectory + fileNamePar.Substring(+fileNamePar.IndexOf("\\"));
+            string cleanFileName = Path.Combine(cleanLogfilesDirectory, Path.GetFileName(fileNamePar));
 
             #region compareTime
             string firstLine = "[UnityCrossThreadLogger]";
@@ -1981,7 +2025,8 @@ namespace Magic
                 {
                     File.WriteAllText(cleanFileName, sb.ToString(), Encoding.UTF8);
                 }
-                File.Delete(fileNamePar);
+                if (configReader.AllowDeleteProcessedLogFiles)
+                    File.Delete(fileNamePar);
             }
             catch
             {
@@ -2015,7 +2060,7 @@ namespace Magic
                 {
                     stringBuilder.AppendLine(lines[x]);
                 }
-                string filename = @"logfilestemp\" + list[accountNumber].Item2 + ".log";
+                string filename = Path.Combine(configReader.GetLogFilesTempPath(), list[accountNumber].Item2 + ".log");
                 File.WriteAllText(filename, stringBuilder.ToString(), Encoding.UTF8);
             }
 
@@ -2092,16 +2137,13 @@ namespace Magic
 
         private string WhatComputer()
         {
-            if (Directory.Exists("config"))
-                return "Master";
-            else
-                return "Slave";
+            return configReader.MainComputer ? "Master" : "Slave";
         }
 
         private void RestoreLastUser()
         {
             if (WhatComputer() == "Master")
-                Player.TransferLastUserIDToUserlist(@"\\tommy-pc\delt\Magic\NextPlayer1.txt");
+                Player.TransferLastUserIDToUserlist(configReader.GetMasterShareFilePath(configReader.NextPlayerFileName));
             else
                 Player.TransferLastUserIDToUserlist();
         }
@@ -2145,8 +2187,8 @@ namespace Magic
                 //Login
                 {
                     Thread.Sleep(500);
-                    if (Directory.Exists("config"))
-                        userNumber = Player.GetNextPlayer(@"\\tommy-pc\delt\Magic\NextPlayer1.txt");
+                    if (WhatComputer() == "Master")
+                        userNumber = Player.GetNextPlayer(configReader.GetMasterShareFilePath(configReader.NextPlayerFileName));
                     else
                         userNumber = Player.GetNextPlayer();
 
@@ -2237,9 +2279,28 @@ namespace Magic
 
         private void BtnCopyFilesToSlave_Click(object sender, EventArgs e)
         {
-            File.Copy("loginOrder.txt", "\\\\tommy-pc\\delt\\Magic\\NextPlayer1.txt", true);
+            CopyLoginOrderToMaster(configReader.LoginOrderFileName);
         }
 
+
+        private void CopyLoginOrderToMaster(string sourceFileName)
+        {
+            string destination = configReader.GetMasterShareFilePath(configReader.NextPlayerFileName);
+
+            if (!configReader.AllowNetworkFileWrites)
+            {
+                LogFile.WriteLog($"Network copy skipped because AllowNetworkFileWrites is false. Source={sourceFileName}, Destination={destination}");
+                return;
+            }
+
+            if (configReader.DryRun)
+            {
+                LogFile.WriteLog($"DRY RUN: Would copy {sourceFileName} to {destination}");
+                return;
+            }
+
+            File.Copy(sourceFileName, destination, true);
+        }
         private void Btn3_Click(object sender, EventArgs e)
         {
             TxtMaxQuests.Text = "3";
@@ -2252,9 +2313,15 @@ namespace Magic
 
         private void button5_Click(object sender, EventArgs e)
         {
-            File.Copy("loginOrder0Quests.txt", "\\\\tommy-pc\\delt\\Magic\\NextPlayer1.txt", true);
+            CopyLoginOrderToMaster(configReader.LoginOrderZeroQuestsFileName);
         }
     }
 }
+
+
+
+
+
+
 
 

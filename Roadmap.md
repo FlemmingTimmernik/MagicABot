@@ -18,7 +18,7 @@ Det kan i dag:
 - Starte bot-matches og spille simple loops ved at finde knapper, kort og states via pixels.
 - Concede/starte ny kamp ud fra timeout og quest-status.
 - Tage screenshots foer/efter quest-skift og kopiere/splitte/rydde logfiler.
-- Koordinere "Master" og "Slave" PC via delte filer paa `\\tommy-pc\delt\Magic`.
+- Koordinere "Master" og "Slave" PC via en konfigureret delt mappe.
 - Vise simple monitor-vinduer for quest/logstatus.
 - Bruge Pixel Tool og ScreenshotHelper til at finde skaermkoordinater og farver.
 - Lave collection-decks ved at klikke kort igennem i deck builderen.
@@ -27,10 +27,11 @@ Det kan i dag:
 
 ### 1. Stabil drift
 
-- Saml alle timeouts, skaermoploesninger, kontointervaller, stier og netvaerksstier i `config\config.txt`.
+- Saml alle timeouts, skaermoploesninger, kontointervaller, stier og netvaerksstier i `config\config.json`.
 - Tilfoej en faelles stop/cancel-mekanisme til lange loops, saa programmet kan stoppes rent uden at flytte musen til toppen af skaermen.
 - Lav status/log i UI for "hvad laver botten nu", sidste fejl og nuvaerende konto.
 - Sikr at noedvendige mapper oprettes automatisk: `LogFiles`, `LogfilesDump`, `cleanLogfiles`, `magicLogfile`, `config`, screenshotmapper.
+- Lav senere et skaermbillede i programmet til at se og rette `config\config.json` uden at redigere filen manuelt.
 
 ### 2. Robust MTG Arena navigation
 

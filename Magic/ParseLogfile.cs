@@ -20,8 +20,8 @@ namespace Magic
   
     internal class ParseLogfile
     {
-        string playerLogFilename = @"C:\Users\Tommy\AppData\LocalLow\Wizards Of The Coast\MTGA\Player.log";
-        string tempLogfileName = @"LogFiles\temp.log";
+        string playerLogFilename = "";
+        string tempLogfileName = "";
         int currentPlayerStartLine = 0;
         public bool playWhite = false;
         public bool playGreen = false;
@@ -33,6 +33,10 @@ namespace Magic
        
         public ParseLogfile()
         {
+            ConfigReader config = ConfigReader.Current;
+            playerLogFilename = config.GetExpandedPlayerLogPath();
+            tempLogfileName = Path.Combine(config.GetLogFilesPath(), "temp.log");
+            logFilePath = config.GetLogfilesDumpPath();
             //"<== Quest_GetQuests";
 
         }
@@ -67,7 +71,7 @@ namespace Magic
 
            
         }
-        string logFilePath = "logfilesdump";
+        string logFilePath = "";
         public void RenameLogfiles()
         {
            
@@ -84,29 +88,48 @@ namespace Magic
 
         public void CopyRemoteLogFileIfExist()
         {
-            string externalDirectory = @"\\tommy-pc\delt\Magic\logfilesdump";
+            ConfigReader config = ConfigReader.Current;
+            string externalDirectory = config.GetRemoteLogfilesDumpPath();
             try
             {
+                if (!config.AllowNetworkFileWrites)
+                {
+                    LogFile.WriteLog("CopyRemoteLogFileIfExist skipped because AllowNetworkFileWrites is false.");
+                    return;
+                }
+
                 var files = Directory.GetFiles(externalDirectory);
-                if (Directory.Exists("Config"))
+                if (config.MainComputer)
                 {
                     for (int i = 0; i < files.Length; i++)
                     {
                         string filesname = files[i];
-                        string destName = logFilePath + @"\tommy-pc_" + files[i].Substring(files[i].LastIndexOf(@"\") + 1);
+                        string destName = Path.Combine(logFilePath, "remote_" + Path.GetFileName(files[i]));
+                        if (config.DryRun)
+                        {
+                            LogFile.WriteLog($"DRY RUN: Would copy remote log {filesname} to {destName}.");
+                            continue;
+                        }
+
                         File.Copy(filesname, destName, false);
-                        File.Delete(filesname);
+
+                        if (config.AllowDeleteProcessedLogFiles)
+                            File.Delete(filesname);
                     }
 
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                LogFile.WriteLog($"CopyRemoteLogFileIfExist failed: {ex.Message}");
+            }
 
         }
 
         private void CopyLocalPlayerLogFile()
         {
-            File.Copy(playerLogFilename, @"LogfilesDump\temp.log", false);
+            string destination = Path.Combine(ConfigReader.Current.GetLogfilesDumpPath(), "temp.log");
+            File.Copy(playerLogFilename, destination, true);
         }
 
         private void CopyLogFileAndReadAllLines()

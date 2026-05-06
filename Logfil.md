@@ -1,5 +1,20 @@
 # Logfil
 
+## 2026-05-06 16:03:30 +02:00
+
+- Oprettet lokal JSON config: `config\config.json` (ignored af git).
+- Oprettet tracked eksempelconfig: `config.example.json`.
+- Skiftet config path fra `config\config.txt` til `config\config.json`.
+- Flyttet centrale stier ind i `ConfigReader`: `PlayerLogPath`, `SteamPath`, `MasterSharePath`, runtime mapper og login queue filnavne.
+- Tilfoejet sikkerhedsflag i config: `DryRun`, `DebugClickLogging`, `AllowForceKillArena`, `AllowNetworkFileWrites` og `AllowDeleteProcessedLogFiles`.
+- Gated force-kill af MTGA bag `AllowForceKillArena`.
+- Gated netvaerkskopiering bag `AllowNetworkFileWrites`.
+- Gated sletning af behandlede logfiler bag `AllowDeleteProcessedLogFiles`.
+- Tilfoejet dry-run logging til centrale klik/kopi/start flows.
+- Tilfoejet synlig `STOP` knap i UI, som saetter `stopRequested` og stopper den faelles klik-helper.
+- Opdateret `Roadmap.md` med senere config-skaermbillede/editor.
+- Koert `dotnet build Magic.sln`; build lykkedes med 0 errors, men eksisterende warnings er stadig tilbage.
+
 ## 2026-05-06 15:49:36 +02:00
 
 - Opdateret `NextStep.md`.
