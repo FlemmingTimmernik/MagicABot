@@ -1,0 +1,55 @@
+# Visual Studio / .NET
+.vs/
+.vscode/.vs/
+bin/
+obj/
+Debug/
+Release/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build output in project folders
+Magic/bin/
+Magic/obj/
+MouseAndKeyboard/**/bin/
+MouseAndKeyboard/**/obj/
+
+# Local config and account queues
+config/
+Magic/bin/**/config/
+config.txt
+loginOrder*.txt
+NextPlayer*.txt
+lastUser.txt
+
+# Logs and processed MTG Arena data
+*.log
+LogFiles/
+LogFilesTemp/
+LogfilesDump/
+logfilesdump/
+logfilestemp/
+cleanLogfiles/
+magicLogfile/
+Magic/bin/**/LogFiles/
+Magic/bin/**/LogFilesTemp/
+Magic/bin/**/LogfilesDump/
+Magic/bin/**/logfilesdump/
+Magic/bin/**/logfilestemp/
+Magic/bin/**/cleanLogfiles/
+Magic/bin/**/magicLogfile/
+
+# Screenshots and generated image captures
+*.bmp
+*.png
+BeforeQuestChange/
+AfterQuestChange/
+Screenshots/
+
+# Local test/runtime files
+Decks/Players/
+Magic/bin/**/Decks/Players/
+jsonTest/
+Magic/bin/**/jsonTest/

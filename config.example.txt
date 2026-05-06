@@ -1,0 +1,14 @@
+{
+  "TimeOutWhite": 90,
+  "TimeOutBlack": 100,
+  "TimeOutBlue": 100,
+  "TimeOutRed": 90,
+  "TimeOutGreen": 100,
+  "TimeOutNoAction": 20,
+  "TimeOutNoCardPlayed": 30,
+  "MaxActiveQuests": 2,
+  "MainComputer": false,
+  "LoginEmailAccountZero": "your-main-account@example.com",
+  "LoginEmailTemplate": "yourname+mtg{0}@example.com",
+  "LoginPassword": ""
+}
