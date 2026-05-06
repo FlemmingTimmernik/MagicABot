@@ -1,5 +1,13 @@
 # Logfil
 
+## 2026-05-06 16:12:40 +02:00
+
+- Oprettet `Workflow.md`.
+- Workflow fastlagt som: `NextStep` -> kode/docs -> build ved kodeaendringer -> sikkerhedstjek -> `Logfil` -> commit -> push -> evt. version.
+- Tilfoejet sikkerhedsregler for lokal config, netvaerkskopiering, logfil-sletning, force-kill og `DryRun`.
+- Sikkerhedstjek koert rent; `config\config.json` er fortsat ignored.
+- Build ikke koert, da aendringen kun er dokumentation.
+
 ## 2026-05-06 16:03:30 +02:00
 
 - Oprettet lokal JSON config: `config\config.json` (ignored af git).
