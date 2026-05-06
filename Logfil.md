@@ -1,5 +1,11 @@
 # Logfil
 
+## 2026-05-06 15:42:27 +02:00
+
+- Lavet foerste lokale commit: `Initial commit`.
+- Pushet `main` til GitHub remote `origin`.
+- GitHub repo: `https://github.com/FlemmingTimmernik/MagicABot`.
+
 ## 2026-05-06 15:41:55 +02:00
 
 - Initialiseret git i projektmappen.
