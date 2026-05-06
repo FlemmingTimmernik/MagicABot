@@ -1,5 +1,12 @@
 # Logfil
 
+## 2026-05-06 16:22:34 +02:00
+
+- Laest `NextStep.md`, `Workflow.md`, `Roadmap.md`, `ThingsToFix.md` og seneste `Logfil.md`.
+- Oprettet `Form1ResponsibilityPlan.md` med plan for hvordan `Form1.cs` boer deles op i services.
+- Opdateret `NextStep.md` med foerste konkrete implementeringsstep: opret `RuntimeLogService` og flyt logfil-ansvar ud af `Form1.cs`.
+- Build ikke koert, da aendringen kun er dokumentation.
+
 ## 2026-05-06 16:12:40 +02:00
 
 - Oprettet `Workflow.md`.

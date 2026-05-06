@@ -5,10 +5,24 @@ Denne fil er vores kommunikationsfil. Skriv den aktuelle opgave oeverst under "A
 ## Aktuel opgave
 
 ```text
-Afventer naeste opgave.
+Opret RuntimeLogService og flyt logfil-ansvar ud af Form1.cs.
+
+Start med:
+- CopyLogFiles
+- SplitLogFilesToIndividualLogFiles
+- ReadAllLogFiles
+- OnlySaveImportantLines
+- ReadLogFile
+
+Maal:
+- Form1 skal kun kalde service-metoder.
+- RuntimeLogService skal bruge ConfigReader.
+- Sletning skal respektere AllowDeleteProcessedLogFiles.
+- Kopiering skal respektere DryRun.
+- dotnet build Magic.sln skal lykkes med 0 errors.
 
 Senest afsluttet:
-v0.2.0 config/stier/sikkerhed er implementeret og klar til versionstag.
+Plan for opdeling af ansvar i Form1.cs er skrevet i Form1ResponsibilityPlan.md.
 ```
 
 ## Arbejdsregel
@@ -20,6 +34,7 @@ v0.2.0 config/stier/sikkerhed er implementeret og klar til versionstag.
 
 ## Seneste status
 
+- 2026-05-06 16:22:34 +02:00: Plan for opdeling af `Form1.cs` skrevet; naeste implementeringsstep er `RuntimeLogService`.
 - 2026-05-06 16:03:30 +02:00: v0.2.0 config/stier/sikkerhed implementeret; build lykkes med 0 errors.
 - 2026-05-06 15:49:36 +02:00: Naeste arbejdsopgave sat til v0.2.0 config/stier.
 - 2026-05-06: Oprettet `Roadmap.md`, `ThingsToFix.md` og `NextStep.md`.
