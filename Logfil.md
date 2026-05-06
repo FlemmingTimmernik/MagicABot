@@ -1,5 +1,15 @@
 # Logfil
 
+## 2026-05-06 16:41:56 +02:00
+
+- Laest `NextStep.md`, `Workflow.md`, `Roadmap.md`, `ThingsToFix.md`, `Logfil.md` og `Form1ResponsibilityPlan.md`.
+- Oprettet `Magic\RuntimeLogService.cs`.
+- Flyttet ansvar for `CopyLogFiles`, `SplitLogFilesToIndividualLogFiles`, `ReadAllLogFiles`, `OnlySaveImportantLines` og `ReadLogFile` ud af `Form1.cs`.
+- `Form1.cs` har nu tynde wrappers, der kalder `RuntimeLogService`.
+- `RuntimeLogService` bruger `ConfigReader`, opretter runtime-mapper, respekterer `DryRun` ved kopiering og respekterer `AllowDeleteProcessedLogFiles` ved sletning.
+- Opdateret `NextStep.md` med naeste foreslaaede step: `AccountQueueService`.
+- Koert `dotnet build Magic.sln`; build lykkedes med 0 errors, men eksisterende warnings er stadig tilbage.
+
 ## 2026-05-06 16:22:34 +02:00
 
 - Laest `NextStep.md`, `Workflow.md`, `Roadmap.md`, `ThingsToFix.md` og seneste `Logfil.md`.

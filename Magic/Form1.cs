@@ -20,6 +20,7 @@ namespace Magic
     public partial class Form1 : Form
     {
         ParseLogfile parseLogFile;
+        RuntimeLogService runtimeLogService;
         Player player = new Player();
         LookAndClick.ScreenStates currentLocation = LookAndClick.ScreenStates.JUST_STARTED;
         LookAndClick.ScreenStates lastLocation = LookAndClick.ScreenStates.JUST_STARTED;
@@ -37,6 +38,7 @@ namespace Magic
             player = new Player();
             configReader = new ConfigReader(configLocation);
             configReader.LoadConfigValues();
+            runtimeLogService = new RuntimeLogService(configReader);
             parseLogFile = new ParseLogfile();
         }
 
@@ -1498,20 +1500,7 @@ namespace Magic
 
         private void CopyLogFiles(int AccountNumber)
         {
-            string source = configReader.GetExpandedPlayerLogPath();
-            string logfileFolder = configReader.GetLogFilesPath();
-            Directory.CreateDirectory(logfileFolder);
-
-            string destinationFileName = AccountNumber != -1 ? AccountNumber + ".txt" : "temp.txt";
-            string destination = Path.Combine(logfileFolder, destinationFileName);
-
-            if (configReader.DryRun)
-            {
-                LogFile.WriteLog($"DRY RUN: Would copy log file {source} to {destination}");
-                return;
-            }
-
-            File.Copy(source, destination, true);
+            runtimeLogService.CopyLogFiles(AccountNumber);
         }
 
         private void button1_Click_1(object sender, EventArgs e)
@@ -1943,128 +1932,22 @@ namespace Magic
 
         private void SplitLogFilesToIndividualLogFiles()
         {
-            var filenames = Directory.GetFiles(configReader.GetLogfilesDumpPath());
-            foreach (var filename in filenames)
-            {
-                if (filename.IndexOf(".log") != -1)
-                {
-                    ReadLogFile(filename);
-                    if (configReader.AllowDeleteProcessedLogFiles)
-                        File.Delete(filename);
-                }
-            }
+            runtimeLogService.SplitLogFilesToIndividualLogFiles();
         }
 
         private void ReadAllLogFiles()
         {
-            var filenames = Directory.GetFiles(configReader.GetLogFilesTempPath());
-            foreach (var filename in filenames)
-            {
-                OnlySaveImportantLines(filename);
-            }
-
+            runtimeLogService.ReadAllLogFiles();
         }
 
         private void OnlySaveImportantLines(string fileNamePar)
         {
-            string cleanLogfilesDirectory = configReader.GetCleanLogfilesPath();
-            string[] lines = File.ReadAllLines(fileNamePar);
-            bool inventoryLine = true;
-            StringBuilder sb = new StringBuilder();
-            string firstLineForDatetime = "";
-            for (int i = lines.Length - 1; i >= 0; i--)
-            {
-
-                if (lines[i].IndexOf("{\"InventoryInfo\":{\"") != -1 && inventoryLine)
-                {
-                    firstLineForDatetime = lines[i - 2];
-                    sb.Append(lines[i - 2] + Environment.NewLine);
-                    sb.Append(lines[i]);//.Substring(0, lines[i].IndexOf("\"}]}}") + 5) + Environment.NewLine);
-                    inventoryLine = false;
-                    break;
-                }
-
-            }
-
-            for (int i = 0; i < lines.Length; i++)
-            {
-
-                if (lines[i].IndexOf("{\"InventoryInfo\":{\"") != -1 && inventoryLine)
-                {
-                    sb.AppendLine(lines[i - 2]);
-                    sb.AppendLine(lines[i].Substring(0, 2000));
-                    inventoryLine = false;
-                }
-
-                if (lines[i].IndexOf("\"quests\":[") != -1) // || lines[i].IndexOf("") || lines[i].IndexOf(""))
-                {
-                    sb.AppendLine(lines[i - 2]);
-                    sb.AppendLine(lines[i]);
-                }
-
-
-                if (lines[i].IndexOf("<== Rank_GetCombinedRankInfo") != -1) // || lines[i].IndexOf("") || lines[i].IndexOf(""))
-                {
-                    sb.AppendLine(lines[i]);
-                    sb.AppendLine(lines[i + 1]);
-                }
-            }
-
-            string cleanFileName = Path.Combine(cleanLogfilesDirectory, Path.GetFileName(fileNamePar));
-
-            #region compareTime
-            string firstLine = "[UnityCrossThreadLogger]";
-            try
-            {
-                string oldFileTimeStamp = File.ReadAllLines(cleanFileName)[0].Substring(firstLine.Length);
-                DateTime oldFileDatetime = ConvertLineToDatetime(oldFileTimeStamp);
-                DateTime newFileDatetime = ConvertLineToDatetime(firstLineForDatetime.Substring(firstLine.Length));
-                #endregion
-
-                if (newFileDatetime.Ticks > oldFileDatetime.Ticks)
-                {
-                    File.WriteAllText(cleanFileName, sb.ToString(), Encoding.UTF8);
-                }
-                if (configReader.AllowDeleteProcessedLogFiles)
-                    File.Delete(fileNamePar);
-            }
-            catch
-            {
-                File.WriteAllText(cleanFileName, sb.ToString(), Encoding.UTF8);
-            }
-
-        }
-
-        private static DateTime ConvertLineToDatetime(string dateTimeString)
-        {
-            return DateTime.ParseExact(dateTimeString, "dd-MM-yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+            runtimeLogService.OnlySaveImportantLines(fileNamePar);
         }
 
         private void ReadLogFile(string fileNamePar)
         {
-
-            string[] lines = File.ReadAllLines(fileNamePar);
-
-            List<Tuple<int, string>> list = new List<Tuple<int, string>>(); ;
-            string find = "[Accounts - Login] Logged in successfully. Display Name: ";
-            for (int i = 0; i < lines.Length; i++)
-            {
-                if (lines[i].IndexOf(find) != -1)
-                    list.Add(new Tuple<int, string>(i, lines[i].Substring(find.Length)));
-            }
-            list.Add(new Tuple<int, string>(lines.Length - 1, "Nobody"));
-            for (int accountNumber = 0; accountNumber < list.Count - 1; accountNumber++)
-            {
-                StringBuilder stringBuilder = new StringBuilder();
-                for (int x = list[accountNumber].Item1 - 1; x < list[accountNumber + 1].Item1 - 2; x++)
-                {
-                    stringBuilder.AppendLine(lines[x]);
-                }
-                string filename = Path.Combine(configReader.GetLogFilesTempPath(), list[accountNumber].Item2 + ".log");
-                File.WriteAllText(filename, stringBuilder.ToString(), Encoding.UTF8);
-            }
-
-            int p = 0;
+            runtimeLogService.ReadLogFile(fileNamePar);
         }
 
         private void BtnCopyThisIsTheWay_Click(object sender, EventArgs e)
@@ -2317,11 +2200,4 @@ namespace Magic
         }
     }
 }
-
-
-
-
-
-
-
 

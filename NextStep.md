@@ -5,24 +5,24 @@ Denne fil er vores kommunikationsfil. Skriv den aktuelle opgave oeverst under "A
 ## Aktuel opgave
 
 ```text
-Opret RuntimeLogService og flyt logfil-ansvar ud af Form1.cs.
+Opret AccountQueueService og flyt konto-koe ansvar ud af Form1.cs.
 
 Start med:
-- CopyLogFiles
-- SplitLogFilesToIndividualLogFiles
-- ReadAllLogFiles
-- OnlySaveImportantLines
-- ReadLogFile
+- RestoreLastUser
+- WhatComputer
+- CopyLoginOrderToMaster
+- de Form1-steder der henter/skriver naeste spiller
 
 Maal:
 - Form1 skal kun kalde service-metoder.
-- RuntimeLogService skal bruge ConfigReader.
-- Sletning skal respektere AllowDeleteProcessedLogFiles.
-- Kopiering skal respektere DryRun.
+- AccountQueueService skal bruge ConfigReader.
+- Master/Slave filstier skal gaa gennem ConfigReader.
+- Netvaerks-skrivning skal respektere AllowNetworkFileWrites.
+- DryRun skal respekteres ved kopiering/skrivning.
 - dotnet build Magic.sln skal lykkes med 0 errors.
 
 Senest afsluttet:
-Plan for opdeling af ansvar i Form1.cs er skrevet i Form1ResponsibilityPlan.md.
+RuntimeLogService er oprettet, og Form1 kalder nu service-metoder for logfil-flowet.
 ```
 
 ## Arbejdsregel
@@ -34,6 +34,7 @@ Plan for opdeling af ansvar i Form1.cs er skrevet i Form1ResponsibilityPlan.md.
 
 ## Seneste status
 
+- 2026-05-06 16:41:56 +02:00: `RuntimeLogService` oprettet; `Form1.cs` har nu tynde wrappers for logfil-flowet; build lykkes med 0 errors.
 - 2026-05-06 16:22:34 +02:00: Plan for opdeling af `Form1.cs` skrevet; naeste implementeringsstep er `RuntimeLogService`.
 - 2026-05-06 16:03:30 +02:00: v0.2.0 config/stier/sikkerhed implementeret; build lykkes med 0 errors.
 - 2026-05-06 15:49:36 +02:00: Naeste arbejdsopgave sat til v0.2.0 config/stier.
