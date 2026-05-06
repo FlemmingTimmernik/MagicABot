@@ -4,12 +4,19 @@ Denne fil er vores kommunikationsfil. Skriv den aktuelle opgave oeverst under "A
 
 ## Aktuel opgave
 
-Skriv her hvad Codex skal lave nu.
-
-Eksempel:
-
 ```text
-Goer login-flowet mere stabilt og flyt hardcodede credentials ud af Form1.cs.
+v0.2.0: Flyt hardcodede lokale stier og netvaerksstier ud af koden og ind i ConfigReader/config.
+
+Start med:
+- Player.log path
+- Steam path
+- Master/Slave share path
+- Runtime mapper som LogFiles, LogfilesDump, cleanLogfiles og magicLogfile
+
+Maal:
+- Ingen private maskinstier direkte i kildekoden.
+- Programmet skal stadig bygge efter aendringen.
+- Opdater config.example.txt, Roadmap.md, ThingsToFix.md og Logfil.md efter behov.
 ```
 
 ## Arbejdsregel
@@ -21,5 +28,6 @@ Goer login-flowet mere stabilt og flyt hardcodede credentials ud af Form1.cs.
 
 ## Seneste status
 
+- 2026-05-06 15:49:36 +02:00: Naeste arbejdsopgave sat til v0.2.0 config/stier.
 - 2026-05-06: Oprettet `Roadmap.md`, `ThingsToFix.md` og `NextStep.md`.
 - Programoverblik: MTG Arena Windows Forms helper til login, quest parsing, quest swap, deck generation/import, kampautomation, screenshots og logfilhaandtering.

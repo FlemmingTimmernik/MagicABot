@@ -1,5 +1,11 @@
 # Logfil
 
+## 2026-05-06 15:49:36 +02:00
+
+- Opdateret `NextStep.md`.
+- Naeste arbejdsopgave er sat til `v0.2.0`: flyt hardcodede lokale stier og netvaerksstier ud af koden og ind i `ConfigReader`/config.
+- Foerste fokusomraader: `Player.log` path, Steam path, Master/Slave share path og runtime mapper.
+
 ## 2026-05-06 15:43:47 +02:00
 
 - Besluttet at oprette foerste baseline-version.
