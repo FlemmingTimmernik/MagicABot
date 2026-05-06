@@ -1,5 +1,12 @@
 # Logfil
 
+## 2026-05-06 15:43:47 +02:00
+
+- Besluttet at oprette foerste baseline-version.
+- Version: `v0.1.0`.
+- Betydning: Foerste GitHub-version hvor projektet bygger, dokumentationsfiler er oprettet, `.gitignore` er paa plads, og loginoplysninger er flyttet ud af `Form1.cs`.
+- Naeste naturlige version: `v0.2.0` naar config/stier er samlet bedre og flere lokale hardcodede stier er flyttet ud.
+
 ## 2026-05-06 15:42:27 +02:00
 
 - Lavet foerste lokale commit: `Initial commit`.
